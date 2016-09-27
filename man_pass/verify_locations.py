@@ -11,6 +11,7 @@ from pprint import pprint
 import warnings
 import glob
 import json
+import argparse
 
 
 def getUserKeyWithConfirmation(image, windowName, imageClasses):
@@ -38,7 +39,6 @@ def draw_images(images, max_y, max_x):
     for i,image in enumerate(images):
         x = image.shape[1]
         y = image.shape[0]
-        print x, y
         x_offset = i * max_x
         y_offset = 0
         if x_offset > (max_x):
@@ -47,18 +47,12 @@ def draw_images(images, max_y, max_x):
         if int((max_y / y) * x) <= max_x and y < max_y:
             new_y = max_y
             new_x = int((max_y / y) * x)
-            print '1'
         elif int((max_x / x) * y) <= max_y and x < max_x:
             new_x = max_x
             new_y = int((max_x / x) * y)
-            print '2'
         else:
-            print 'here', max_y, y
             new_x = int((max_x / float(x)) * x)
             new_y = int((max_y / float(y)) * y)
-            print '3'
-        print new_x, new_y
-        print 'xo', y_offset + new_y
         blank_image[y_offset: y_offset + new_y, x_offset: x_offset + new_x] = cv2.resize(image, ( new_x, new_y))
     return blank_image
 
@@ -131,25 +125,35 @@ def write_annotations(image_name, annotations):
         f.write(json.dumps(annotations, sort_keys=True, indent=4))
 
 
+def review_images(cat_dir_path, outfile, resume):
+    diagram_images = defaultdict(list)
+    cat_dir_path = './all_turkers_agree/'
+    for g in glob.glob(cat_dir_path + '*'): 
+        image_name = os.path.splitext(g.split('/')[-1])[0]
+        image_id = image_name.split('_')[-2]
+        # if image_id < 1508:
+            # continue
+        diagram_images[image_id].append(image_name)
+    idx = int(resume)
+    for image_id, images in diagram_images.items()[idx:]:
+        read_images = [putTextOnImage(read_image(cat_dir_path + image + '.png'), image.split('_')[-1]) for image in images][::-1]
+        # try:    
+        selected_idx = select_from_image_tiles(read_images)
+        with open(outfile, 'a') as f:
+            f.write(', '.join([str(idx), images[0].replace('_1', ''), str(selected_idx[0]), '\n']))
+        idx += 1
+        # except :
+            # print e
+            # break
 
-diagram_images = defaultdict(list)
-cat_dir_path = './all_turkers_agree/'
+def main():
+    parser = argparse.ArgumentParser(description='Review text localization')
+    parser.add_argument('imgdir', help='path to diagram images', type=str)
+    parser.add_argument('outfile', help='file to write output', type=str)
+    parser.add_argument('resume', help='resume from index', type=str)    
+    args = parser.parse_args()
+    review_images(args.imgdir, args.outfile, args.resume)
 
-for g in glob.glob(cat_dir_path + '*'): 
-    image_name = os.path.splitext(g.split('/')[-1])[0]
-    image_id = image_name.split('_')[-2]
-    # if image_id < 1508:
-        # continue
-    diagram_images[image_id].append(image_name)
-
-for image_id, images in diagram_images.items()[1:]:
-    print images
-    read_images = [putTextOnImage(read_image(cat_dir_path + image + '.png'), image.split('_')[-1]) for image in images]
-    # try:    
-    print select_from_image_tiles(read_images)
-    # except :
-        # print e
-        # break
-
-# print diagram_images
+if __name__ == "__main__":
+    main()
 
