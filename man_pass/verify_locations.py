@@ -129,7 +129,7 @@ def review_images(cat_dir_path, outfile, resume):
     idx = int(resume)
     for image_id, images in diagram_images.items()[idx:]:
         read_images = [putTextOnImage(read_image(cat_dir_path + image + '.png'), image.split('_')[-1]) for image in images][::-1]
-        # try:    
+        read_images[1], read_images[3] = read_images[3], read_images[1]        
         selected_idx = select_from_image_tiles(read_images)
         if selected_idx[1] in ['skip', 'accept']:
             with open(outfile, 'a') as f:
@@ -138,9 +138,6 @@ def review_images(cat_dir_path, outfile, resume):
             with open(outfile, 'a') as f:
                 f.write(', '.join([str(idx), images[0].replace('_1', ''), 'redo', '\n']))
         idx += 1
-        # except :
-            # print e
-            # break
 
 def main():
     parser = argparse.ArgumentParser(description='Review text localization')
