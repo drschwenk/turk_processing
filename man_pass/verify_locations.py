@@ -45,10 +45,10 @@ def draw_images(images, max_y, max_x):
             x_offset = (i - 2) * max_x
             y_offset = max_y
         if int((max_y / y) * x) <= max_x and y < max_y:
-            new_y = max_y
+            new_y = int((max_y / y) * y)
             new_x = int((max_y / y) * x)
         elif int((max_x / x) * y) <= max_y and x < max_x:
-            new_x = max_x
+            new_x = int((max_x / x) * x)
             new_y = int((max_x / x) * y)
         else:
             new_x = int((max_x / float(x)) * x)
@@ -82,8 +82,8 @@ def putTextOnImage(image, text):
 
 def select_from_image_tiles(images):
     import cv2
-    max_y = 400
-    max_x = 600
+    max_y = 700
+    max_x = 1000
     selected_index = None
     tile_image = draw_images(images, max_y, max_x)
     while True:
@@ -117,14 +117,6 @@ def select_from_image_tiles(images):
             cv2.rectangle(tile_image, (start_x, start_y), (end_x, end_y), color=(0, 0, 178), thickness=5)
 
 
-
-
-def write_annotations(image_name, annotations):
-
-    with open("annotations/%s.json" % image_name, "w") as f:
-        f.write(json.dumps(annotations, sort_keys=True, indent=4))
-
-
 def review_images(cat_dir_path, outfile, resume):
     diagram_images = defaultdict(list)
     cat_dir_path = './all_turkers_agree/'
@@ -139,8 +131,12 @@ def review_images(cat_dir_path, outfile, resume):
         read_images = [putTextOnImage(read_image(cat_dir_path + image + '.png'), image.split('_')[-1]) for image in images][::-1]
         # try:    
         selected_idx = select_from_image_tiles(read_images)
-        with open(outfile, 'a') as f:
-            f.write(', '.join([str(idx), images[0].replace('_1', ''), str(selected_idx[0]), '\n']))
+        if selected_idx[1] in ['skip', 'accept']:
+            with open(outfile, 'a') as f:
+                f.write(', '.join([str(idx), images[0].replace('_1', ''), str(selected_idx[0]), '\n']))
+        elif selected_idx[1] == 'back':
+            with open(outfile, 'a') as f:
+                f.write(', '.join([str(idx), images[0].replace('_1', ''), 'redo', '\n']))
         idx += 1
         # except :
             # print e
