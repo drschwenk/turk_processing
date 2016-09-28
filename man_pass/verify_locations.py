@@ -123,11 +123,10 @@ def review_images(cat_dir_path, outfile, resume):
     for g in glob.glob(cat_dir_path + '*'): 
         image_name = os.path.splitext(g.split('/')[-1])[0]
         image_id = image_name.split('_')[-2]
-        # if image_id < 1508:
-            # continue
         diagram_images[image_id].append(image_name)
     idx = int(resume)
     for image_id, images in diagram_images.items()[idx:]:
+        print images[0]
         read_images = [putTextOnImage(read_image(cat_dir_path + image + '.png'), image.split('_')[-1]) for image in images][::-1]
         read_images[1], read_images[3] = read_images[3], read_images[1]        
         selected_idx = select_from_image_tiles(read_images)
