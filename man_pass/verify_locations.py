@@ -82,11 +82,11 @@ def putTextOnImage(image, text):
 
 def select_from_image_tiles(images):
     import cv2
-    max_y = 450
-    max_x = 600
+    # max_y = 450
+    # max_x = 600
     
-    # max_y = 700
-    # max_x = 1000
+    max_y = 700
+    max_x = 1000
 
     selected_index = None
     tile_image = draw_images(images, max_y, max_x)
@@ -123,7 +123,6 @@ def select_from_image_tiles(images):
 
 def review_images(cat_dir_path, outfile, resume):
     diagram_images = defaultdict(list)
-    cat_dir_path = './all_turkers_agree/'
     for g in glob.glob(cat_dir_path + '*'): 
         image_name = os.path.splitext(g.split('/')[-1])[0]
         image_id = image_name.split('_')[-2]
@@ -136,10 +135,10 @@ def review_images(cat_dir_path, outfile, resume):
         selected_idx = select_from_image_tiles(read_images)
         if selected_idx[1] in ['skip', 'accept']:
             with open(outfile, 'a') as f:
-                f.write(', '.join([str(idx), images[0].replace('_1', ''), str(selected_idx[0]), '\n']))
+                f.write(', '.join([str(idx), images[-1].replace('_consensus', ''), str(selected_idx[0]), '\n']))
         elif selected_idx[1] == 'back':
             with open(outfile, 'a') as f:
-                f.write(', '.join([str(idx), images[0].replace('_1', ''), 'redo', '\n']))
+                f.write(', '.join([str(idx), images[0].replace('_consensus', ''), 'redo', '\n']))
         idx += 1
 
 def main():
