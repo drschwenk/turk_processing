@@ -82,8 +82,12 @@ def putTextOnImage(image, text):
 
 def select_from_image_tiles(images):
     import cv2
-    max_y = 700
-    max_x = 1000
+    max_y = 450
+    max_x = 600
+    
+    # max_y = 700
+    # max_x = 1000
+
     selected_index = None
     tile_image = draw_images(images, max_y, max_x)
     while True:
